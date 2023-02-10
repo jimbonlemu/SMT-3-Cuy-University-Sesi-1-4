@@ -2,19 +2,28 @@ const express = require('express')
 const app = express()
 const port = 6969
 const bodyParser = require('body-parser')
-
+const db = require('./connection')
+const formatResponse = require('./response')
 
 /// Routes / URL /utama kita method GET
 
 app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  db.query('select * from mahasiswa', (err, result) => {
+    // hasil dari mysql
+    console.log(result)
+    formatResponse(200, result, "mendapatkan seluruh data dari tabel mahasiswa", res)
+  })
 })
 
-app.get('/tot', (req, res) => {
-  console.log({urlParams : req.query})
-  res.send('Hello sat!')
+app.get('/nimu', (req, res) => {
+  console.log('Find NIM : ', req.query.nim)
+
+  const sql = `select nama from mahasiswa where nim = "${req.query.nim}"`
+  db.query(sql, (err, result) => {
+    formatResponse(200, result, "get NIM from mahasiswa", res)
+  })
 })
 
 app.post('/login', (req, res) => {
@@ -23,7 +32,7 @@ app.post('/login', (req, res) => {
 })
 
 app.put('/username', (req, res) => {
-  console.log({updateData : req.body})
+  console.log({ updateData: req.body })
   res.send('update berhasil')
 })
 
